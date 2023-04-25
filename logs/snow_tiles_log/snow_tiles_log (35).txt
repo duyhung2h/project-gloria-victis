@@ -1,0 +1,6 @@
+at x=121; y=0;facet=3
+at x=209; y=1;facet=4
+at x=203; y=3;facet=5
+at x=27; y=4;facet=2
+at x=225; y=4;facet=4
+at x=28; y=5;facet=3
