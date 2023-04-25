@@ -12,15 +12,16 @@ from model.buildings import BuildingInfo
 scenario_folder = "C:/Users/Admin/Games/Age of Empires 2 DE/76561198148041091/resources/_common/scenario/"
 
 # Source scenario to work with
-scenario_name = "12warlords 0v1v34"
+scenario_name = "Gloria Victis v0v1v1"
 input_path = scenario_folder + scenario_name + ".aoe2scenario"
-output_path = scenario_folder + scenario_name + " Adding Villages" + ".aoe2scenario"
+output_path = scenario_folder + scenario_name + " TreasureGuardians" + ".aoe2scenario"
 
 # declare scenario class
 source_scenario = AoE2DEScenario.from_file(input_path)
 
 # declare trigger manager to work with variables and triggers
 source_trigger_manager = source_scenario.trigger_manager
+unit_manager = source_scenario.unit_manager
 
 # print num of triggers
 print("Number of triggers: " + str(len(source_trigger_manager.triggers)))
@@ -45,243 +46,173 @@ triggerStart = source_trigger_manager.add_trigger("9===" + identification_name +
 '''
 When you get close to a guardian / clicked on them
 '''
-nearVilTriggerlist = []
-vilID = -1
-for village in TreasureGuardian.get_villages():
-    nearVilTriggerlist.append([])
-    vilID = vilID + 1
-    triggerSeparator = source_trigger_manager.add_trigger("----UnitNearVillage---------------")
+for treasure_guardian in TreasureGuardian.get_treasure_guardians():
+    triggerSeparator = source_trigger_manager.add_trigger("----click on TG---------------")
     for playerId in range(1, 9, 1):
-        trigg_unit_near_village = source_trigger_manager.add_trigger(
+        trigg_click_on_TG = source_trigger_manager.add_trigger(
             enabled=True,
-            looping=False,
-            name="P" + str(playerId) + "UnitNearVillage"
+            looping=True,
+            name="P" + str(playerId) + "ClickOnTG_" + treasure_guardian.guardianName
         )
-        nearVilTriggerlist[vilID].append(trigg_unit_near_village.trigger_id)
-        trigg_unit_outof_village = source_trigger_manager.add_trigger(
-            enabled=False,
-            looping=False,
-            name="P" + str(playerId) + "UnitOutOfVillage"
-        )
-        nearVilTriggerlist[vilID].append(trigg_unit_outof_village.trigger_id)
-        # UnitNearVillage
-        trigg_unit_near_village.new_condition.objects_in_area(
-            quantity=1,
+        # trigg_click_on_TG.new_condition.objects_in_area(
+        #     quantity=1,
+        #     source_player=playerId,
+        #     area_x1=treasure_guardian.locationXY[0],
+        #     area_x2=treasure_guardian.locationXY[1],
+        #     area_y1=treasure_guardian.locationXY[2],
+        #     area_y2=treasure_guardian.locationXY[3],
+        #     object_state=ObjectState.ALIVE,
+        #     object_type=ObjectType.MILITARY
+        # )
+        trigg_click_on_TG.new_condition.object_selected_multiplayer(
+            unit_object=treasure_guardian.coreUnitId,
             source_player=playerId,
-            area_x1=village.locationXY[0],
-            area_x2=village.locationXY[1],
-            area_y1=village.locationXY[2],
-            area_y2=village.locationXY[3],
-            object_state=ObjectState.ALIVE,
-            object_type=ObjectType.MILITARY
         )
-        trigg_unit_near_village.new_effect.activate_trigger(
-            trigger_id=trigg_unit_outof_village.trigger_id
+        trigg_click_on_TG.new_condition.capture_object(
+            unit_object=treasure_guardian.coreUnitId,
+            source_player=0,
         )
-        trigg_unit_near_village.new_effect.create_object(
+        trigg_click_on_TG.new_condition.timer(
+            timer=20
+        )
+        trigg_click_on_TG.new_effect.send_chat(
             source_player=playerId,
-            location_x=village.TClocation[0],
-            location_y=village.TClocation[1],
-            object_list_unit_id=1689,
+            message=treasure_guardian.missionText
         )
-        for req_text in req_texts:
-            trigg_unit_near_village.new_effect.send_chat(
-                source_player=playerId,
-                message=req_text
-            )
-        # UnitOutOfVillage
-        trigg_unit_outof_village.new_condition.objects_in_area(
-            quantity=1,
-            source_player=playerId,
-            area_x1=village.locationXY[0],
-            area_x2=village.locationXY[1],
-            area_y1=village.locationXY[2],
-            area_y2=village.locationXY[3],
-            object_state=ObjectState.ALIVE,
-            object_type=ObjectType.MILITARY,
-            inverted=True
-        )
-        trigg_unit_outof_village.new_effect.activate_trigger(
-            trigger_id=trigg_unit_near_village.trigger_id
-        )
-        trigg_unit_outof_village.new_effect.remove_object(
-            source_player=playerId,
-            area_x1=village.TClocation[0],
-            area_x2=village.TClocation[0],
-            area_y1=village.TClocation[1],
-            area_y2=village.TClocation[1],
-            object_list_unit_id=1689,
-        )
-        trigg_unit_outof_village.new_effect.change_ownership(
-            source_player=playerId,
-            target_player=0,
-            area_x1=village.locationXY[0],
-            area_x2=village.locationXY[1],
-            area_y1=village.locationXY[2],
-            area_y2=village.locationXY[3],
-            object_list_unit_id=BuildingInfo.HARBOR.ID
-        )
-        # print(village.villageName)
-        # print(VillageInfo[village.typeOfMission].REQ_TEXT)
+
 
 '''
-Loop change ownership harbor...............................
+Loop heal treasure guardians
 '''
-triggerSeparator = source_trigger_manager.add_trigger("----nearVilTCchangeOWLOOP---------------")
-for village in TreasureGuardian.get_villages():
-    for playerId in range(1, 9, 1):
-        trigg_near_village_change_ow_loop = source_trigger_manager.add_trigger(
-            name="P" + str(playerId) + "nearVilTC_CO_LOOP",
-            enabled=True,
-            looping=True
-        )
-        trigg_near_village_change_ow_loop.new_condition.timer(
-            timer=2
-        )
-        trigg_near_village_change_ow_loop.new_condition.objects_in_area(
-            quantity=1,
-            source_player=playerId,
-            area_x1=village.locationXY[0],
-            area_x2=village.locationXY[1],
-            area_y1=village.locationXY[2],
-            area_y2=village.locationXY[3],
-            object_state=ObjectState.ALIVE,
-            object_type=ObjectType.MILITARY
-        )
-        trigg_near_village_change_ow_loop.new_condition.object_selected_multiplayer(
-            source_player=playerId,
-            unit_object=village.coreTC
-        )
-        trigg_near_village_change_ow_loop.new_condition.objects_in_area(
-            quantity=1,
-            source_player=playerId,
-            area_x1=village.locationXY[0],
-            area_x2=village.locationXY[1],
-            area_y1=village.locationXY[2],
-            area_y2=village.locationXY[3],
-            object_state=ObjectState.ALIVE,
-            object_list=BuildingInfo.HARBOR.ID,
-            inverted=True
-        )
-        for playerId2 in range(0, 9, 1):
-            if playerId2 == playerId:
-                continue
-            trigg_near_village_change_ow_loop.new_effect.change_ownership(
-                source_player=playerId2,
-                target_player=playerId,
-                area_x1=village.locationXY[0],
-                area_x2=village.locationXY[1],
-                area_y1=village.locationXY[2],
-                area_y2=village.locationXY[3],
-                object_list_unit_id=BuildingInfo.HARBOR.ID
-            )
-
-'''
-modify appease | defy icon inside TC
-'''
-triggerSeparator = source_trigger_manager.add_trigger("----TC Icon---------------")
-for playerId in range(1, 9, 1):
-    trigg_modify_TC_icon = source_trigger_manager.add_trigger(
-        name="P" + str(playerId) + "_TCIcon"
+trigg_heal_tg = source_trigger_manager.add_trigger(
+    enabled=True,
+    looping=True,
+    name="Heal_TG"
+)
+for treasure_guardian in TreasureGuardian.get_treasure_guardians():
+    trigg_heal_tg.new_condition.timer(timer=5)
+    trigg_heal_tg.new_effect.heal_object(
+        selected_object_ids=treasure_guardian.coreUnitId,
+        source_player=8,
+        quantity=int(treasure_guardian.hp / 100)
     )
-    trigg_modify_TC_icon.new_condition.timer(timer=5)
-    trigg_modify_TC_icon.new_effect.enable_disable_object(
-        source_player=playerId,
+
+'''
+Loop treasure guardian HP < max (engage in battle)
+'''
+for treasure_guardian in TreasureGuardian.get_treasure_guardians():
+    trigg_tg_engage = source_trigger_manager.add_trigger(
         enabled=True,
-        object_list_unit_id=UnitInfo.COW_A.ID,
+        looping=True,
+        name="TG_Engage_" + treasure_guardian.guardianName
     )
-    trigg_modify_TC_icon.new_effect.enable_disable_object(
-        source_player=playerId,
+    trigg_tg_engage.new_condition.capture_object(
+        source_player=0,
+        unit_object=treasure_guardian.coreUnitId
+    )
+    trigg_tg_engage.new_condition.object_hp(
+        quantity=treasure_guardian.hp-1,
+        comparison=Comparison.LESS,
+        unit_object=treasure_guardian.coreUnitId
+    )
+    trigg_tg_engage.new_effect.change_ownership(
+        selected_object_ids=treasure_guardian.coreUnitId,
+        source_player=0,
+        target_player=8,
+    )
+
+'''
+Loop treasure guardian HP = max (disengage from battle)
+'''
+for treasure_guardian in TreasureGuardian.get_treasure_guardians():
+    trigg_tg_disengage = source_trigger_manager.add_trigger(
         enabled=True,
-        object_list_unit_id=UnitInfo.COW_B.ID,
+        looping=True,
+        name="TG_Disengage_" + treasure_guardian.guardianName
     )
-    trigg_modify_TC_icon.new_effect.change_train_location(
-        source_player=playerId,
-        button_location=1,
-        object_list_unit_id=UnitInfo.COW_A.ID,
-        object_list_unit_id_2=1189,
+    trigg_tg_disengage.new_condition.capture_object(
+        source_player=8,
+        unit_object=treasure_guardian.coreUnitId
     )
-    trigg_modify_TC_icon.new_effect.change_train_location(
-        source_player=playerId,
-        button_location=2,
-        object_list_unit_id=UnitInfo.COW_B.ID,
-        object_list_unit_id_2=1189,
+    trigg_tg_disengage.new_condition.object_hp(
+        quantity=treasure_guardian.hp-1,
+        comparison=Comparison.LARGER_OR_EQUAL,
+        unit_object=treasure_guardian.coreUnitId
     )
-    trigg_modify_TC_icon.new_effect.change_object_cost(
-        source_player=playerId,
-        object_list_unit_id=UnitInfo.COW_A.ID,
-        stone=0,
-        gold=0,
-        wood=0,
-        food=0
-    )
-    trigg_modify_TC_icon.new_effect.change_object_cost(
-        source_player=playerId,
-        object_list_unit_id=UnitInfo.COW_B.ID,
-        stone=0,
-        gold=0,
-        wood=0,
-        food=0
-    )
-    trigg_modify_TC_icon.new_effect.change_object_description(
-        source_player=playerId,
-        object_list_unit_id=UnitInfo.COW_A.ID,
-        message="Click this icon to appease this village. You'd need to fulfill any request this settlement may have, "
-                "to earn their trust and pull them to your side. Each warlord can only have up to 3 villages."
-    )
-    trigg_modify_TC_icon.new_effect.change_object_description(
-        source_player=playerId,
-        object_list_unit_id=UnitInfo.COW_B.ID,
-        message="Click this icon to defy this village. "
-                "This means you'll declare war against this village and cannot appease them again. "
-                "All of their territories are ripe to take, even for other players."
-    )
-    trigg_modify_TC_icon.new_effect.modify_attribute(
-        source_player=playerId,
-        object_list_unit_id=UnitInfo.COW_A.ID,
-        operation=Operation.SET,
-        object_attributes=ObjectAttribute.ICON_ID,
-        quantity=34
-    )
-    trigg_modify_TC_icon.new_effect.modify_attribute(
-        source_player=playerId,
-        object_list_unit_id=UnitInfo.COW_B.ID,
-        operation=Operation.SET,
-        object_attributes=ObjectAttribute.ICON_ID,
-        quantity=183
-    )
-    trigg_modify_TC_icon.new_effect.modify_attribute(
-        source_player=playerId,
-        object_list_unit_id=UnitInfo.COW_A.ID,
-        operation=Operation.SET,
-        object_attributes=ObjectAttribute.TRAIN_TIME,
-        quantity=0
-    )
-    trigg_modify_TC_icon.new_effect.modify_attribute(
-        source_player=playerId,
-        object_list_unit_id=UnitInfo.COW_B.ID,
-        operation=Operation.SET,
-        object_attributes=ObjectAttribute.TRAIN_TIME,
-        quantity=0
-    )
-    trigg_modify_TC_icon.new_effect.modify_attribute(
-        source_player=playerId,
-        object_list_unit_id=UnitInfo.COW_B.ID,
-        operation=Operation.SET,
-        object_attributes=ObjectAttribute.POPULATION,
-        quantity=0
-    )
-    trigg_modify_TC_icon.new_effect.modify_attribute(
-        source_player=playerId,
-        object_list_unit_id=UnitInfo.COW_A.ID,
-        operation=Operation.SET,
-        object_attributes=ObjectAttribute.POPULATION,
-        quantity=0
+    trigg_tg_disengage.new_effect.change_ownership(
+        selected_object_ids=treasure_guardian.coreUnitId,
+        source_player=8,
+        target_player=0,
     )
 
+'''
+Loop attack_move treasure guardian back to location
+'''
+for treasure_guardian in TreasureGuardian.get_treasure_guardians():
+    trigg_atk_move_to_origin_loc = source_trigger_manager.add_trigger(
+        enabled=True,
+        looping=True,
+        name="ATKMove_ToOriginLoc_" + treasure_guardian.guardianName
+    )
+    coreunit_treasure_guardian = unit_manager.filter_units_by_reference_id(unit_reference_ids=[treasure_guardian.coreUnitId])[0]
+    print(coreunit_treasure_guardian)
+    trigg_atk_move_to_origin_loc.new_condition.timer(timer=2)
+    trigg_atk_move_to_origin_loc.new_condition.bring_object_to_area(
+        area_x1=int(coreunit_treasure_guardian.x - 5),
+        area_x2=int(coreunit_treasure_guardian.x + 5),
+        area_y1=int(coreunit_treasure_guardian.y - 5),
+        area_y2=int(coreunit_treasure_guardian.y + 5),
+        unit_object=treasure_guardian.coreUnitId,
+        inverted=True
+    )
+    trigg_atk_move_to_origin_loc.new_effect.task_object(
+        selected_object_ids=treasure_guardian.coreUnitId,
+        location_x=int(coreunit_treasure_guardian.x),
+        location_y=int(coreunit_treasure_guardian.y),
+        source_player=8,
+    )
+    trigg_atk_move_to_origin_loc.new_effect.heal_object(
+        selected_object_ids=treasure_guardian.coreUnitId,
+        source_player=8,
+        quantity=treasure_guardian.hp
+    )
 
-
-triggerSeparator = source_trigger_manager.add_trigger("--ATTRITION IN WINTER---------------")
+'''
+modify treasure guardian stats
+'''
+triggerSeparator = source_trigger_manager.add_trigger("----modify TG stats---------------")
+playerId = 8
+trigg_modify_TC_icon = source_trigger_manager.add_trigger(
+    name="TG_stats"
+)
+trigg_modify_TC_icon.new_condition.timer(timer=5)
+for treasure_guardian in TreasureGuardian.get_treasure_guardians():
+    trigg_modify_TC_icon.new_effect.none()
+    trigg_modify_TC_icon.new_effect.change_object_name(
+        source_player=playerId,
+        selected_object_ids=treasure_guardian.coreUnitId,
+        message=treasure_guardian.guardianName
+    )
+    trigg_modify_TC_icon.new_effect.change_object_attack(
+        source_player=playerId,
+        selected_object_ids=treasure_guardian.coreUnitId,
+        operation=Operation.SET,
+        armour_attack_class=3,
+        armour_attack_quantity=treasure_guardian.atk
+    )
+    trigg_modify_TC_icon.new_effect.change_object_attack(
+        source_player=playerId,
+        selected_object_ids=treasure_guardian.coreUnitId,
+        operation=Operation.SET,
+        armour_attack_class=4,
+        armour_attack_quantity=treasure_guardian.atk
+    )
+    trigg_modify_TC_icon.new_effect.change_object_hp(
+        source_player=playerId,
+        selected_object_ids=treasure_guardian.coreUnitId,
+        operation=Operation.SET,
+        quantity=treasure_guardian.hp
+    )
 
 triggerEnd = source_trigger_manager.add_trigger("9===" + identification_name + " End===")
 

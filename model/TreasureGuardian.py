@@ -11,15 +11,18 @@ class TreasureGuardian:
     win the village's favor (by doing their errands)
     """
 
-    def __init__(self, guardianName, coreUnitId, unitDemand, amountNeeded, missionText):
+    def __init__(self, guardianName, coreUnitId, hp, atk, unitDemand, amountNeeded, missionText):
         self.guardianName = guardianName
         self.coreUnitId = coreUnitId
+        self.hp = hp
+        self.atk = atk
+
         self.unitDemand = unitDemand
         self.amountNeeded = amountNeeded
         self.missionText = missionText
 
-    def get_villages():
+    def get_treasure_guardians():
         return [
-            TreasureGuardian('Fanzy, the Dream Eater', -1, 594, 2,
-                             "---Fanzy, the Dream Eater---\n<GREEN>Hey stranger, think you can give me 2 sheep? The monster of this forest took my magical ball of yarn, and their wools are guaranteed to be perfect materials for a replacement.")
+            TreasureGuardian('Fanzy, the Dream Eater', 8028, 200, 6, 594, 2,
+                             "<GREEN>---Fanzy, the Dream Eater---\nHey stranger, think you can give me 2 sheep? The monster of this forest took my magical ball of yarn, and their wools are guaranteed to be perfect materials for a replacement.")
         ]
