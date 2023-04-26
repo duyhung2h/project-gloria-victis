@@ -24,5 +24,15 @@ class TreasureGuardian:
     def get_treasure_guardians():
         return [
             TreasureGuardian('Fanzy, the Dream Eater', 8028, 200, 6, 594, 2,
-                             "<GREEN>---Fanzy, the Dream Eater---\nHey stranger, think you can give me 2 sheep? The monster of this forest took my magical ball of yarn, and their wools are guaranteed to be perfect materials for a replacement.")
+                             "<GREEN>Hey stranger, think you can give me 2 sheeps? The monster of this forest took my magical ball of yarn, and their wools are guaranteed to be perfect materials for a replacement."),
+            TreasureGuardian('Ronnie', 8244, 170, 6, 83, 1,
+                             "<GREEN>I'm from Sleepywood, but I'm moving to Ellinia and I need your help. Bring me a builder (villager) to renovate this old house."),
+            TreasureGuardian('Arwen the Fairy', 8175, 170, 6, 83, 1,
+                             "<GREEN>"),
+            TreasureGuardian('Betty the Researcher', 9415, 170, 6, 83, 1,
+                             "<GREEN>"),
+            TreasureGuardian('Wing the Fairy', 9411, 140, 7, 846, 1,
+                             "<GREEN>My traveling donkey got lost somewhere in the woods, and I need you to find it. Don't get the wrong ideas though, I just want my magical artifacts back."),
+            TreasureGuardian('Rowen the Fairy', 9417, 170, 6, 83, 1,
+                             "<GREEN>"),
         ]

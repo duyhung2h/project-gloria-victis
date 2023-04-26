@@ -12,7 +12,7 @@ from model.buildings import BuildingInfo
 scenario_folder = "C:/Users/Admin/Games/Age of Empires 2 DE/76561198148041091/resources/_common/scenario/"
 
 # Source scenario to work with
-scenario_name = "Gloria Victis v0v1v1"
+scenario_name = "Gloria Victis v0v1v2"
 input_path = scenario_folder + scenario_name + ".aoe2scenario"
 output_path = scenario_folder + scenario_name + " TreasureGuardians" + ".aoe2scenario"
 
@@ -46,8 +46,8 @@ triggerStart = source_trigger_manager.add_trigger("9===" + identification_name +
 '''
 When you get close to a guardian / clicked on them
 '''
+triggerSeparator = source_trigger_manager.add_trigger("----click on TG---------------")
 for treasure_guardian in TreasureGuardian.get_treasure_guardians():
-    triggerSeparator = source_trigger_manager.add_trigger("----click on TG---------------")
     for playerId in range(1, 9, 1):
         trigg_click_on_TG = source_trigger_manager.add_trigger(
             enabled=True,
@@ -82,24 +82,9 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
 
 
 '''
-Loop heal treasure guardians
-'''
-trigg_heal_tg = source_trigger_manager.add_trigger(
-    enabled=True,
-    looping=True,
-    name="Heal_TG"
-)
-for treasure_guardian in TreasureGuardian.get_treasure_guardians():
-    trigg_heal_tg.new_condition.timer(timer=5)
-    trigg_heal_tg.new_effect.heal_object(
-        selected_object_ids=treasure_guardian.coreUnitId,
-        source_player=8,
-        quantity=int(treasure_guardian.hp / 100)
-    )
-
-'''
 Loop treasure guardian HP < max (engage in battle)
 '''
+triggerSeparator = source_trigger_manager.add_trigger("----ENGAGE---------------")
 for treasure_guardian in TreasureGuardian.get_treasure_guardians():
     trigg_tg_engage = source_trigger_manager.add_trigger(
         enabled=True,
@@ -124,6 +109,7 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
 '''
 Loop treasure guardian HP = max (disengage from battle)
 '''
+triggerSeparator = source_trigger_manager.add_trigger("----DISENGAGE---------------")
 for treasure_guardian in TreasureGuardian.get_treasure_guardians():
     trigg_tg_disengage = source_trigger_manager.add_trigger(
         enabled=True,
@@ -139,6 +125,15 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
         comparison=Comparison.LARGER_OR_EQUAL,
         unit_object=treasure_guardian.coreUnitId
     )
+    coreunit_treasure_guardian = unit_manager.filter_units_by_reference_id(unit_reference_ids=[treasure_guardian.coreUnitId])[0]
+    trigg_tg_disengage.new_condition.bring_object_to_area(
+        area_x1=int(coreunit_treasure_guardian.x - 1),
+        area_x2=int(coreunit_treasure_guardian.x + 1),
+        area_y1=int(coreunit_treasure_guardian.y - 1),
+        area_y2=int(coreunit_treasure_guardian.y + 1),
+        unit_object=treasure_guardian.coreUnitId,
+        inverted=False
+    )
     trigg_tg_disengage.new_effect.change_ownership(
         selected_object_ids=treasure_guardian.coreUnitId,
         source_player=8,
@@ -148,6 +143,7 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
 '''
 Loop attack_move treasure guardian back to location
 '''
+triggerSeparator = source_trigger_manager.add_trigger("----MoveToOrigin---------------")
 for treasure_guardian in TreasureGuardian.get_treasure_guardians():
     trigg_atk_move_to_origin_loc = source_trigger_manager.add_trigger(
         enabled=True,
@@ -165,11 +161,16 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
         unit_object=treasure_guardian.coreUnitId,
         inverted=True
     )
+    trigg_atk_move_to_origin_loc.new_condition.capture_object(
+        source_player=8,
+        unit_object=treasure_guardian.coreUnitId
+    )
     trigg_atk_move_to_origin_loc.new_effect.task_object(
         selected_object_ids=treasure_guardian.coreUnitId,
         location_x=int(coreunit_treasure_guardian.x),
         location_y=int(coreunit_treasure_guardian.y),
         source_player=8,
+        action_type=ActionType.MOVE
     )
     trigg_atk_move_to_origin_loc.new_effect.heal_object(
         selected_object_ids=treasure_guardian.coreUnitId,
@@ -177,11 +178,96 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
         quantity=treasure_guardian.hp
     )
 
+
+'''
+Complete treasure guardian request
+'''
+triggerSeparator = source_trigger_manager.add_trigger("----Com_REQ---------------")
+for treasure_guardian in TreasureGuardian.get_treasure_guardians():
+    for playerId in range(1, 8, 1):
+        trigg_com_req = source_trigger_manager.add_trigger(
+            enabled=True,
+            looping=False,
+            name="comReq_" + treasure_guardian.guardianName
+        )
+        coreunit_treasure_guardian = unit_manager.filter_units_by_reference_id(unit_reference_ids=[treasure_guardian.coreUnitId])[0]
+        # if object is not villager
+        if treasure_guardian.unitDemand != 83:
+            trigg_com_req.new_condition.objects_in_area(
+                quantity=treasure_guardian.amountNeeded,
+                object_list=treasure_guardian.unitDemand,
+                source_player=playerId,
+                area_x1=int(coreunit_treasure_guardian.x - 2),
+                area_x2=int(coreunit_treasure_guardian.x + 2),
+                area_y1=int(coreunit_treasure_guardian.y - 2),
+                area_y2=int(coreunit_treasure_guardian.y + 2),
+            )
+            # tele to check tele spot and destroy them
+            for amount in range(0, treasure_guardian.amountNeeded, 1):
+                trigg_com_req.new_effect.teleport_object(
+                    object_list_unit_id=treasure_guardian.unitDemand,
+                    source_player=playerId,
+                    area_x1=int(coreunit_treasure_guardian.x - 2),
+                    area_x2=int(coreunit_treasure_guardian.x + 2),
+                    area_y1=int(coreunit_treasure_guardian.y - 2),
+                    area_y2=int(coreunit_treasure_guardian.y + 2),
+                    location_x=1,
+                    location_y=1,
+                )
+                trigg_com_req.new_effect.remove_object(
+                    object_list_unit_id=treasure_guardian.unitDemand,
+                    source_player=playerId,
+                    area_x1=0,
+                    area_x2=2,
+                    area_y1=0,
+                    area_y2=2,
+                )
+        # if object is villager
+        else:
+            trigg_com_req.new_condition.objects_in_area(
+                quantity=treasure_guardian.amountNeeded,
+                object_type=ObjectType.CIVILIAN,
+                source_player=playerId,
+                area_x1=int(coreunit_treasure_guardian.x - 2),
+                area_x2=int(coreunit_treasure_guardian.x + 2),
+                area_y1=int(coreunit_treasure_guardian.y - 2),
+                area_y2=int(coreunit_treasure_guardian.y + 2),
+            )
+            # tele to check tele spot and destroy them
+            for amount in range(0, treasure_guardian.amountNeeded, 1):
+                trigg_com_req.new_effect.teleport_object(
+                    object_type=ObjectType.CIVILIAN,
+                    source_player=playerId,
+                    area_x1=int(coreunit_treasure_guardian.x - 2),
+                    area_x2=int(coreunit_treasure_guardian.x + 2),
+                    area_y1=int(coreunit_treasure_guardian.y - 2),
+                    area_y2=int(coreunit_treasure_guardian.y + 2),
+                    location_x=1,
+                    location_y=1,
+                )
+                trigg_com_req.new_effect.remove_object(
+                    object_type=ObjectType.CIVILIAN,
+                    source_player=playerId,
+                    area_x1=0,
+                    area_x2=2,
+                    area_y1=0,
+                    area_y2=2,
+                )
+        trigg_com_req.new_effect.change_ownership(
+            selected_object_ids=treasure_guardian.coreUnitId,
+            source_player=0,
+            target_player=playerId,
+            flash_object=0
+        )
+
+'''
+ETC Stuffs
+'''
+
+triggerSeparator = source_trigger_manager.add_trigger("----ETC---------------")
 '''
 modify treasure guardian stats
 '''
-triggerSeparator = source_trigger_manager.add_trigger("----modify TG stats---------------")
-playerId = 8
 trigg_modify_TC_icon = source_trigger_manager.add_trigger(
     name="TG_stats"
 )
@@ -189,30 +275,47 @@ trigg_modify_TC_icon.new_condition.timer(timer=5)
 for treasure_guardian in TreasureGuardian.get_treasure_guardians():
     trigg_modify_TC_icon.new_effect.none()
     trigg_modify_TC_icon.new_effect.change_object_name(
-        source_player=playerId,
+        source_player=8,
         selected_object_ids=treasure_guardian.coreUnitId,
         message=treasure_guardian.guardianName
     )
     trigg_modify_TC_icon.new_effect.change_object_attack(
-        source_player=playerId,
+        source_player=8,
         selected_object_ids=treasure_guardian.coreUnitId,
         operation=Operation.SET,
         armour_attack_class=3,
         armour_attack_quantity=treasure_guardian.atk
     )
     trigg_modify_TC_icon.new_effect.change_object_attack(
-        source_player=playerId,
+        source_player=8,
         selected_object_ids=treasure_guardian.coreUnitId,
         operation=Operation.SET,
         armour_attack_class=4,
         armour_attack_quantity=treasure_guardian.atk
     )
     trigg_modify_TC_icon.new_effect.change_object_hp(
-        source_player=playerId,
+        source_player=8,
         selected_object_ids=treasure_guardian.coreUnitId,
         operation=Operation.SET,
         quantity=treasure_guardian.hp
     )
+
+'''
+Loop heal treasure guardians
+'''
+trigg_heal_tg = source_trigger_manager.add_trigger(
+    enabled=True,
+    looping=True,
+    name="Heal_TG"
+)
+for treasure_guardian in TreasureGuardian.get_treasure_guardians():
+    trigg_heal_tg.new_condition.timer(timer=5)
+    trigg_heal_tg.new_effect.heal_object(
+        selected_object_ids=treasure_guardian.coreUnitId,
+        source_player=8,
+        quantity=int(treasure_guardian.hp / 100)
+    )
+
 
 triggerEnd = source_trigger_manager.add_trigger("9===" + identification_name + " End===")
 
