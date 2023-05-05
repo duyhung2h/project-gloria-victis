@@ -5,7 +5,7 @@ from model.TreasureGuardian import TreasureGuardian
 scenario_folder = "C:/Users/Admin/Games/Age of Empires 2 DE/76561198148041091/resources/_common/scenario/"
 
 # Source scenario to work with
-scenario_name = "Gloria Victis v0v1v2"
+scenario_name = "Gloria Victis v0v1v3"
 input_path = scenario_folder + scenario_name + ".aoe2scenario"
 
 # declare scenario class

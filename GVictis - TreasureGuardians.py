@@ -12,7 +12,7 @@ from model.buildings import BuildingInfo
 scenario_folder = "C:/Users/Admin/Games/Age of Empires 2 DE/76561198148041091/resources/_common/scenario/"
 
 # Source scenario to work with
-scenario_name = "Gloria Victis v0v1v2"
+scenario_name = "Gloria Victis v0v1v3"
 input_path = scenario_folder + scenario_name + ".aoe2scenario"
 output_path = scenario_folder + scenario_name + " TreasureGuardians" + ".aoe2scenario"
 
@@ -143,7 +143,41 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
 '''
 Loop attack_move treasure guardian back to location
 '''
-triggerSeparator = source_trigger_manager.add_trigger("----MoveToOrigin---------------")
+triggerSeparator = source_trigger_manager.add_trigger("----MoveToOrigin_OUT OF BOUND---------------")
+for treasure_guardian in TreasureGuardian.get_treasure_guardians():
+    trigg_move_to_origin_loc = source_trigger_manager.add_trigger(
+        enabled=True,
+        looping=True,
+        name="ATKMove_ToOriginLoc_" + treasure_guardian.guardianName
+    )
+    coreunit_treasure_guardian = unit_manager.filter_units_by_reference_id(unit_reference_ids=[treasure_guardian.coreUnitId])[0]
+    print(coreunit_treasure_guardian)
+    trigg_move_to_origin_loc.new_condition.timer(timer=2)
+    trigg_move_to_origin_loc.new_condition.bring_object_to_area(
+        area_x1=int(coreunit_treasure_guardian.x - 5),
+        area_x2=int(coreunit_treasure_guardian.x + 5),
+        area_y1=int(coreunit_treasure_guardian.y - 5),
+        area_y2=int(coreunit_treasure_guardian.y + 5),
+        unit_object=treasure_guardian.coreUnitId,
+        inverted=True
+    )
+    trigg_move_to_origin_loc.new_condition.capture_object(
+        source_player=8,
+        unit_object=treasure_guardian.coreUnitId
+    )
+    trigg_move_to_origin_loc.new_effect.task_object(
+        selected_object_ids=treasure_guardian.coreUnitId,
+        location_x=int(coreunit_treasure_guardian.x),
+        location_y=int(coreunit_treasure_guardian.y),
+        source_player=8,
+        action_type=ActionType.MOVE
+    )
+    trigg_move_to_origin_loc.new_effect.heal_object(
+        selected_object_ids=treasure_guardian.coreUnitId,
+        source_player=8,
+        quantity=treasure_guardian.hp
+    )
+triggerSeparator = source_trigger_manager.add_trigger("----AtkMoveToOriginP8---------------")
 for treasure_guardian in TreasureGuardian.get_treasure_guardians():
     trigg_atk_move_to_origin_loc = source_trigger_manager.add_trigger(
         enabled=True,
@@ -152,15 +186,7 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
     )
     coreunit_treasure_guardian = unit_manager.filter_units_by_reference_id(unit_reference_ids=[treasure_guardian.coreUnitId])[0]
     print(coreunit_treasure_guardian)
-    trigg_atk_move_to_origin_loc.new_condition.timer(timer=2)
-    trigg_atk_move_to_origin_loc.new_condition.bring_object_to_area(
-        area_x1=int(coreunit_treasure_guardian.x - 5),
-        area_x2=int(coreunit_treasure_guardian.x + 5),
-        area_y1=int(coreunit_treasure_guardian.y - 5),
-        area_y2=int(coreunit_treasure_guardian.y + 5),
-        unit_object=treasure_guardian.coreUnitId,
-        inverted=True
-    )
+    trigg_atk_move_to_origin_loc.new_condition.timer(timer=10)
     trigg_atk_move_to_origin_loc.new_condition.capture_object(
         source_player=8,
         unit_object=treasure_guardian.coreUnitId
@@ -170,14 +196,8 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
         location_x=int(coreunit_treasure_guardian.x),
         location_y=int(coreunit_treasure_guardian.y),
         source_player=8,
-        action_type=ActionType.MOVE
+        action_type=ActionType.ATTACK_MOVE
     )
-    trigg_atk_move_to_origin_loc.new_effect.heal_object(
-        selected_object_ids=treasure_guardian.coreUnitId,
-        source_player=8,
-        quantity=treasure_guardian.hp
-    )
-
 
 '''
 Complete treasure guardian request
@@ -189,6 +209,10 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
             enabled=True,
             looping=False,
             name="comReq_" + treasure_guardian.guardianName
+        )
+        trigg_com_req.new_condition.destroy_object(
+            unit_object=treasure_guardian.coreUnitId,
+            inverted=True,
         )
         coreunit_treasure_guardian = unit_manager.filter_units_by_reference_id(unit_reference_ids=[treasure_guardian.coreUnitId])[0]
         # if object is not villager
@@ -227,6 +251,7 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
             trigg_com_req.new_condition.objects_in_area(
                 quantity=treasure_guardian.amountNeeded,
                 object_type=ObjectType.CIVILIAN,
+                object_group=ObjectClass.CIVILIAN,
                 source_player=playerId,
                 area_x1=int(coreunit_treasure_guardian.x - 2),
                 area_x2=int(coreunit_treasure_guardian.x + 2),
@@ -237,6 +262,7 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
             for amount in range(0, treasure_guardian.amountNeeded, 1):
                 trigg_com_req.new_effect.teleport_object(
                     object_type=ObjectType.CIVILIAN,
+                    object_group=ObjectClass.CIVILIAN,
                     source_player=playerId,
                     area_x1=int(coreunit_treasure_guardian.x - 2),
                     area_x2=int(coreunit_treasure_guardian.x + 2),
@@ -247,6 +273,7 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
                 )
                 trigg_com_req.new_effect.remove_object(
                     object_type=ObjectType.CIVILIAN,
+                    object_group=ObjectClass.CIVILIAN,
                     source_player=playerId,
                     area_x1=0,
                     area_x2=2,
