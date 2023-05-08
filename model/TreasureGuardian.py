@@ -35,4 +35,6 @@ class TreasureGuardian:
                              "<GREEN>My traveling donkey got lost somewhere in the woods, and I need you to find it. Don't get the wrong ideas though, I just want my magical artifacts back."),
             TreasureGuardian('Rowen the Fairy', 9417, 170, 6, 83, 1,
                              "<GREEN>"),
+            TreasureGuardian('Manji the Slayer', 29925, 170, 6, 83, 1,
+                             "<ORANGE>"),
         ]

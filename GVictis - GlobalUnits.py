@@ -9,7 +9,7 @@ from model.buildings import BuildingInfo
 scenario_folder = "C:/Users/Admin/Games/Age of Empires 2 DE/76561198148041091/resources/_common/scenario/"
 
 # Source scenario to work with
-scenario_name = "Gloria Victis v0v1v6"
+scenario_name = "Gloria Victis v0v1v9"
 input_path = scenario_folder + scenario_name + ".aoe2scenario"
 output_path = scenario_folder + scenario_name + " GlobalUnits" + ".aoe2scenario"
 
@@ -25,9 +25,9 @@ print("Number of triggers: " + str(len(source_trigger_manager.triggers)))
 
 # Rearrange trigger (push to a new list)
 identification_name = "GVictis - GlobalUnits.py"
-source_trigger_manager.triggers = RebuildingTriggers.rebuild_trigger(self="",
-                                                                     source_trigger_manager=source_trigger_manager,
-                                                                     identification_name=identification_name)
+source_trigger_manager = RebuildingTriggers.rebuild_trigger(self="",
+                                                            source_trigger_manager=source_trigger_manager,
+                                                            identification_name=identification_name)
 
 # refresh (choose whether or not you just want to delete old triggers or not)
 # refresh = True

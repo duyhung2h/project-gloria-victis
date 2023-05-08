@@ -1,18 +1,15 @@
-import re
-
 from AoE2ScenarioParser.datasets.trigger_lists import *
-from AoE2ScenarioParser.datasets.units import UnitInfo
 from AoE2ScenarioParser.scenarios.aoe2_de_scenario import AoE2DEScenario
 
 from functions.RebuildingTriggers import RebuildingTriggers
 from model.TreasureGuardian import TreasureGuardian
+
 # File & Folder setup
-from model.buildings import BuildingInfo
 
 scenario_folder = "C:/Users/Admin/Games/Age of Empires 2 DE/76561198148041091/resources/_common/scenario/"
 
 # Source scenario to work with
-scenario_name = "Gloria Victis v0v1v3"
+scenario_name = "Gloria Victis v0v1v8"
 input_path = scenario_folder + scenario_name + ".aoe2scenario"
 output_path = scenario_folder + scenario_name + " TreasureGuardians" + ".aoe2scenario"
 
@@ -28,9 +25,9 @@ print("Number of triggers: " + str(len(source_trigger_manager.triggers)))
 
 # Rearrange trigger (push to a new list)
 identification_name = "GVictis - TreasureGuardians.py"
-source_trigger_manager.triggers = RebuildingTriggers.rebuild_trigger(self="",
-                                                                     source_trigger_manager=source_trigger_manager,
-                                                                     identification_name=identification_name)
+source_trigger_manager = RebuildingTriggers.rebuild_trigger(self="",
+                                                            source_trigger_manager=source_trigger_manager,
+                                                            identification_name=identification_name)
 
 # refresh (choose whether or not you just want to delete old triggers or not)
 # refresh = True
@@ -80,7 +77,6 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
             message=treasure_guardian.missionText
         )
 
-
 '''
 Loop treasure guardian HP < max (engage in battle)
 '''
@@ -96,7 +92,7 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
         unit_object=treasure_guardian.coreUnitId
     )
     trigg_tg_engage.new_condition.object_hp(
-        quantity=treasure_guardian.hp-1,
+        quantity=treasure_guardian.hp - 1,
         comparison=Comparison.LESS,
         unit_object=treasure_guardian.coreUnitId
     )
@@ -121,11 +117,12 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
         unit_object=treasure_guardian.coreUnitId
     )
     trigg_tg_disengage.new_condition.object_hp(
-        quantity=treasure_guardian.hp-1,
+        quantity=treasure_guardian.hp - 1,
         comparison=Comparison.LARGER_OR_EQUAL,
         unit_object=treasure_guardian.coreUnitId
     )
-    coreunit_treasure_guardian = unit_manager.filter_units_by_reference_id(unit_reference_ids=[treasure_guardian.coreUnitId])[0]
+    coreunit_treasure_guardian = \
+    unit_manager.filter_units_by_reference_id(unit_reference_ids=[treasure_guardian.coreUnitId])[0]
     trigg_tg_disengage.new_condition.bring_object_to_area(
         area_x1=int(coreunit_treasure_guardian.x - 1),
         area_x2=int(coreunit_treasure_guardian.x + 1),
@@ -150,8 +147,9 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
         looping=True,
         name="ATKMove_ToOriginLoc_" + treasure_guardian.guardianName
     )
-    coreunit_treasure_guardian = unit_manager.filter_units_by_reference_id(unit_reference_ids=[treasure_guardian.coreUnitId])[0]
-    print(coreunit_treasure_guardian)
+    coreunit_treasure_guardian = \
+    unit_manager.filter_units_by_reference_id(unit_reference_ids=[treasure_guardian.coreUnitId])[0]
+    # print(coreunit_treasure_guardian)
     trigg_move_to_origin_loc.new_condition.timer(timer=2)
     trigg_move_to_origin_loc.new_condition.bring_object_to_area(
         area_x1=int(coreunit_treasure_guardian.x - 5),
@@ -184,8 +182,9 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
         looping=True,
         name="ATKMove_ToOriginLoc_" + treasure_guardian.guardianName
     )
-    coreunit_treasure_guardian = unit_manager.filter_units_by_reference_id(unit_reference_ids=[treasure_guardian.coreUnitId])[0]
-    print(coreunit_treasure_guardian)
+    coreunit_treasure_guardian = \
+    unit_manager.filter_units_by_reference_id(unit_reference_ids=[treasure_guardian.coreUnitId])[0]
+    # print(coreunit_treasure_guardian)
     trigg_atk_move_to_origin_loc.new_condition.timer(timer=10)
     trigg_atk_move_to_origin_loc.new_condition.capture_object(
         source_player=8,
@@ -214,7 +213,8 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
             unit_object=treasure_guardian.coreUnitId,
             inverted=True,
         )
-        coreunit_treasure_guardian = unit_manager.filter_units_by_reference_id(unit_reference_ids=[treasure_guardian.coreUnitId])[0]
+        coreunit_treasure_guardian = \
+        unit_manager.filter_units_by_reference_id(unit_reference_ids=[treasure_guardian.coreUnitId])[0]
         # if object is not villager
         if treasure_guardian.unitDemand != 83:
             trigg_com_req.new_condition.objects_in_area(
@@ -342,7 +342,6 @@ for treasure_guardian in TreasureGuardian.get_treasure_guardians():
         source_player=8,
         quantity=int(treasure_guardian.hp / 100)
     )
-
 
 triggerEnd = source_trigger_manager.add_trigger("9===" + identification_name + " End===")
 

@@ -5,7 +5,7 @@ from model.TreasureGuardian import TreasureGuardian
 scenario_folder = "C:/Users/Admin/Games/Age of Empires 2 DE/76561198148041091/resources/_common/scenario/"
 
 # Source scenario to work with
-scenario_name = "Gloria Victis v0v1v3"
+scenario_name = "Gloria Victis v0v1v8"
 input_path = scenario_folder + scenario_name + ".aoe2scenario"
 
 # declare scenario class
@@ -58,13 +58,19 @@ villages = TreasureGuardian.get_treasure_guardians()
 # try:
 print(testTriggers[0].trigger_id)
 # print("map size: " + str(testTriggers[0].conditions[1].area_x2))
-print("------------Coreunit--------------")
+print("------------Coreunit_NPC--------------")
 print("TG Franzy Coreunit: " + str(testTriggers[1].effects[0].selected_object_ids))
 print("TG Ronnie Coreunit: " + str(testTriggers[1].effects[1].selected_object_ids))
 print("TG Arwen Coreunit: " + str(testTriggers[1].effects[2].selected_object_ids))
 print("TG Betty Coreunit: " + str(testTriggers[1].effects[3].selected_object_ids))
 print("TG Wing Coreunit: " + str(testTriggers[1].effects[4].selected_object_ids))
 print("TG Rowen Coreunit: " + str(testTriggers[1].effects[5].selected_object_ids))
+print("TG Manji Coreunit: " + str(testTriggers[1].effects[6].selected_object_ids))
+print("------------Coreunit_Strategic buildings--------------")
+print("Sharenian Excavation Tower Coreunit: " + str(testTriggers[2].effects[0].selected_object_ids))
+print("Sharenian Golem Tower Coreunit: " + str(testTriggers[2].effects[1].selected_object_ids))
+print("Sharenian Despair Tower Coreunit: " + str(testTriggers[2].effects[2].selected_object_ids))
+print("Sharenian Ellinia Station Coreunit: " + str(testTriggers[2].effects[3].selected_object_ids))
 coreunit_TG_Franzy = unit_manager.filter_units_by_reference_id(unit_reference_ids=[testTriggers[1].effects[0].selected_object_ids[0]])[0]
 
 
