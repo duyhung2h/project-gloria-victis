@@ -1,5 +1,7 @@
 from AoE2ScenarioParser.scenarios.aoe2_de_scenario import AoE2DEScenario
 from model.TreasureGuardian import TreasureGuardian
+from AoE2ScenarioParser.objects.data_objects.trigger import *
+from AoE2ScenarioParser.objects.managers.trigger_manager import TriggerManager
 
 # File & Folder setup
 scenario_folder = "C:/Users/Admin/Games/Age of Empires 2 DE/76561198148041091/resources/_common/scenario/"
@@ -75,6 +77,9 @@ print("------------Coreunit_Strategic target--------------")
 print("Sharenian Excavation Tower Targetunit: " + str(testTriggers[2].effects[5].selected_object_ids))
 print("Sharenian Golem Tower Targetunit: " + str(testTriggers[2].effects[6].selected_object_ids))
 print("Sharenian Despair Tower Targetunit: " + str(testTriggers[2].effects[7].selected_object_ids))
+print("------------ElliniaTreeLocac--------------")
+for index, effect in enumerate(testTriggers[3].effects):
+    print("Ellinia Tree " + str(index) + " location x=" + str(effect.location_x) + " y=" + str(effect.location_y))
 coreunit_TG_Franzy = unit_manager.filter_units_by_reference_id(unit_reference_ids=[testTriggers[1].effects[0].selected_object_ids[0]])[0]
 
 

@@ -17,11 +17,11 @@ class RebuildingTriggers:
             # Identicate remove points, start and end
             if source_trigger_manager.triggers[
                 triggerDisplayList[triggerId]].name == "9===" + identification_name + " Start===":
-                print(source_trigger_manager.triggers[triggerDisplayList[triggerId]].name)
+                # print(source_trigger_manager.triggers[triggerDisplayList[triggerId]].name)
                 triggerStart = triggerId
             if source_trigger_manager.triggers[
                 triggerDisplayList[triggerId]].name == "9===" + identification_name + " End===":
-                print(source_trigger_manager.triggers[triggerDisplayList[triggerId]].name)
+                # print(source_trigger_manager.triggers[triggerDisplayList[triggerId]].name)
                 triggerEnd = triggerId
         print(triggerStart, triggerEnd)
         # reordering after getting rid of old triggers
@@ -39,7 +39,7 @@ class RebuildingTriggers:
                     if triggerDisplayList[triggerDisplayId2] == triggerDisplayId and triggerDisplayList[triggerDisplayId2] == source_trigger_manager.triggers[triggerId].trigger_id:
                         newTrigger = source_trigger_manager.triggers[triggerId]
                         newTriggerList.append(newTrigger)
-                        print(newTrigger.name)
+                        # print(newTrigger.name)
         print("new length: " + str(len(triggerDisplayList)) + " " + str(len(newTriggerList)))
         for triggerId in range(0, len(triggerDisplayList), 1):
             if triggerDisplayList[triggerId] > triggerEnd:
